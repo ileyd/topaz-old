@@ -4,8 +4,8 @@ import (
 	"errors"
 	"time"
 
-	"github.com/Massad/gin-boilerplate/db"
-	"github.com/Massad/gin-boilerplate/forms"
+	"github.com/ileyd/topaz/db"
+	"github.com/ileyd/topaz/forms"
 )
 
 //Article ...

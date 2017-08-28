@@ -13,9 +13,9 @@ import (
 	"net/http/httptest"
 	"testing"
 
-	"github.com/Massad/gin-boilerplate/controllers"
-	"github.com/Massad/gin-boilerplate/db"
-	"github.com/Massad/gin-boilerplate/forms"
+	"github.com/ileyd/topaz/controllers"
+	"github.com/ileyd/topaz/db"
+	"github.com/ileyd/topaz/forms"
 
 	"github.com/bmizerany/assert"
 	"github.com/gin-gonic/contrib/sessions"

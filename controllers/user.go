@@ -1,8 +1,8 @@
 package controllers
 
 import (
-	"github.com/Massad/gin-boilerplate/forms"
-	"github.com/Massad/gin-boilerplate/models"
+	"github.com/ileyd/topaz/forms"
+	"github.com/ileyd/topaz/models"
 
 	"github.com/gin-gonic/contrib/sessions"
 	"github.com/gin-gonic/gin"
