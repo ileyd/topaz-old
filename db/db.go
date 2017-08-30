@@ -1,59 +1,44 @@
 package db
 
 import (
-	"database/sql"
-	"fmt"
-	"log"
-
-	"github.com/go-gorp/gorp"
-	_ "github.com/lib/pq" //import postgres
+	"gopkg.in/mgo.v2"
 )
 
 //DB ...
 type DB struct {
-	*sql.DB
 }
 
 const (
 	//DbUser ...
-	DbUser = "postgres"
+	DbUser = "topaz"
 	//DbPassword ...
-	DbPassword = "postgres"
+	DbPassword = "respiteforever"
 	//DbName ...
-	DbName = "golang_gin_db"
+	DbName = "stream"
+	//DbHost ...
+	DbHost = "cluster0-shard-00-00-a9ipr.mongodb.net:27017,cluster0-shard-00-01-a9ipr.mongodb.net:27017,cluster0-shard-00-02-a9ipr.mongodb.net:27017"
+	//DbURL ...
+	DbURL = "mongodb://" + DbUser + ":" + DbPassword + "@" + DbHost + "/" + DbName + "/?ssl=true&replicaSet=Cluster0-shard-0&authSource=admin"
 )
 
-var db *gorp.DbMap
+var db *mgo.Database
 
 //Init ...
 func Init() {
-
-	dbinfo := fmt.Sprintf("user=%s password=%s dbname=%s sslmode=disable",
-		DbUser, DbPassword, DbName)
-
 	var err error
-	db, err = ConnectDB(dbinfo)
+	db, err = ConnectDB(DbURL)
 	if err != nil {
-		log.Fatal(err)
+		panic(err)
 	}
-
 }
 
 //ConnectDB ...
-func ConnectDB(dataSourceName string) (*gorp.DbMap, error) {
-	db, err := sql.Open("postgres", dataSourceName)
-	if err != nil {
-		return nil, err
-	}
-	if err = db.Ping(); err != nil {
-		return nil, err
-	}
-	dbmap := &gorp.DbMap{Db: db, Dialect: gorp.PostgresDialect{}}
-	//dbmap.TraceOn("[gorp]", log.New(os.Stdout, "golang-gin:", log.Lmicroseconds)) //Trace database requests
-	return dbmap, nil
+func ConnectDB(url string) (*mgo.Database, error) {
+	session, error := mgo.Dial(url)
+	return session.DB(DbName), error
 }
 
 //GetDB ...
-func GetDB() *gorp.DbMap {
+func GetDB() *mgo.Database {
 	return db
 }
