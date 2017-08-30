@@ -35,29 +35,16 @@ func main() {
 	r := gin.Default()
 
 	store, _ := sessions.NewRedisStore(10, "tcp", "localhost:6379", "", []byte("secret"))
-	r.Use(sessions.Sessions("gin-boilerplate-session", store))
+	r.Use(sessions.Sessions("topaz-session", store))
 
 	r.Use(CORSMiddleware())
 
 	db.Init()
 
-	v1 := r.Group("/v1")
+	api := r.Group("/api")
 	{
-		/*** START USER ***/
-		user := new(controllers.UserController)
-
-		v1.POST("/user/signin", user.Signin)
-		v1.POST("/user/signup", user.Signup)
-		v1.GET("/user/signout", user.Signout)
-
-		/*** START Article ***/
-		article := new(controllers.ArticleController)
-
-		v1.POST("/article", article.Create)
-		v1.GET("/articles", article.All)
-		v1.GET("/article/:id", article.One)
-		v1.PUT("/article/:id", article.Update)
-		v1.DELETE("/article/:id", article.Delete)
+		sonarrEvents := new(controllers.SonarrEventsController)
+		api.GET("/", sonarrEvents.All)
 	}
 
 	r.LoadHTMLGlob("./public/html/*")
