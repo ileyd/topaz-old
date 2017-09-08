@@ -2,6 +2,7 @@ package main
 
 import (
 	"fmt"
+	"log"
 	"net/http"
 	"runtime"
 
@@ -15,7 +16,7 @@ import (
 //CORSMiddleware ...
 func CORSMiddleware() gin.HandlerFunc {
 	return func(c *gin.Context) {
-		c.Writer.Header().Set("Access-Control-Allow-Origin", "http://localhost")
+		c.Writer.Header().Set("Access-Control-Allow-Origin", "*")
 		c.Writer.Header().Set("Access-Control-Max-Age", "86400")
 		c.Writer.Header().Set("Access-Control-Allow-Methods", "POST, GET, OPTIONS, PUT, DELETE, UPDATE")
 		c.Writer.Header().Set("Access-Control-Allow-Headers", "X-Requested-With, Content-Type, Origin, Authorization, Accept, Client-Security-Token, Accept-Encoding, x-access-token")
@@ -34,17 +35,27 @@ func CORSMiddleware() gin.HandlerFunc {
 func main() {
 	r := gin.Default()
 
-	store, _ := sessions.NewRedisStore(10, "tcp", "localhost:6379", "", []byte("secret"))
+	key1 := []byte("Xyp0tNYbk+sCX8AUBD17wCfRxr2TImBioBnQ1eGSHGySDV5r3t9lEjrL+0Rsz5sIw1UCvv/1qdoxjZg1eaeuGA==")
+	key2 := []byte("Xyp0tNYbk+sCX8AUBD17wCfRxr2TImBioBnQ1eGSHGySDV5r3t9lEjrL+0Rsz5sIw1UCvv/1qdoxjZg1eaeuGA==")
+
+	store := sessions.NewCookieStore(key1, key2)
+
 	r.Use(sessions.Sessions("topaz-session", store))
 
 	r.Use(CORSMiddleware())
 
+	log.Println("DELTA1")
+
 	db.Init()
+
+	log.Println("DELTA2")
 
 	api := r.Group("/api")
 	{
-		sonarrEvents := new(controllers.SonarrEventsController)
-		api.GET("/", sonarrEvents.All)
+		sonarrEvents := new(controllers.SonarrEventController)
+		sEC := api.Group("/events")
+		sEC.POST("/create", sonarrEvents.Create)
+		sEC.GET("/all", sonarrEvents.All)
 	}
 
 	r.LoadHTMLGlob("./public/html/*")
