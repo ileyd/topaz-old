@@ -1,48 +1,54 @@
 package models
 
-import "time"
+import (
+	"github.com/ileyd/topaz/db"
+	uuid "github.com/satori/go.uuid"
+	"gopkg.in/mgo.v2/bson"
+)
 
-// Season describes an collection of media files relating to an anime season
-type Season struct {
-	UUID    string // unique collection id
-	KitsuID string
-	TVDBID  string
+// Media describes a media file we have in storage
+type Media struct {
+	ID            string `json:"_id" bson:"_id"`
+	UUID          string `json:"uuid" bson:"uuid"`
+	SeriesID      string `json:"seriesID" bson:"seriesID"`
+	SeasonNumber  int    `json:"seasonNumber" bson:"seasonNumber"`
+	EpisodeNumber int    `json:"episodeNumber" bson:"episodeNumber"`
 
-	SourcePath string
-	TargetPath string
+	Release Release `json:"release" bson:"release"`
 
-	Quality        string
-	SourceType     string
-	QualityVersion string
-
-	ReleaseGroup string
-	ReleaseName  string
-
-	EpisodeCount   int
-	SeasonNumber   int
-	EpisodeNumbers []int
-	EpisodeTitles  map[int]string
-	AirDates       map[int]time.Time
+	Path string `json:"path" bson:"path"`
 }
 
-// Episode describes a media file relating to an anime episode
-type Episode struct {
-	UUID    string // unique collection id
-	KitsuID string
-	TVDBID  string
+// MediaModel is used to group model functions relating to Media objects
+type MediaModel struct{}
 
-	SourcePath string
-	TargetPath string
+func (m *MediaModel) Add(me Media) error {
+	var s Series
+	var sm SeriesModel
+	series := db.GetDB().C(SeriesCollection)
+	err := series.Find(bson.M{"_id": me.SeriesID}).One(&s)
+	if err != nil {
+		return err
+	}
+	s.Seasons[me.SeasonNumber].Episodes[me.EpisodeNumber].Media[me.UUID] = me
+	if me.UUID == "" {
+		me.UUID = uuid.NewV4().String()
+	}
+	return sm.Update(s)
+}
 
-	Quality        string
-	SourceType     string
-	QualityVersion string
+func (m *MediaModel) Update(me Media) error {
+	return m.Add(me)
+}
 
-	ReleaseGroup string
-	ReleaseName  string
-
-	SeasonNumber  int
-	EpisodeNumber int
-	EpisodeTitle  string
-	AirDate       time.Time
+func (m *MediaModel) Delete(me Media) error {
+	var s Series
+	var sm SeriesModel
+	series := db.GetDB().C(SeriesCollection)
+	err := series.Find(bson.M{"_id": me.SeriesID}).One(&s)
+	if err != nil {
+		return err
+	}
+	delete(s.Seasons[me.SeasonNumber].Episodes[me.EpisodeNumber].Media, me.UUID)
+	return sm.Update(s)
 }
