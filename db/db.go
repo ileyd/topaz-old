@@ -1,6 +1,10 @@
 package db
 
 import (
+	"crypto/tls"
+	"errors"
+	"net"
+
 	"gopkg.in/mgo.v2"
 )
 
@@ -8,34 +12,34 @@ import (
 type DB struct {
 }
 
-const (
-	//DbUser ...
-	DbUser = "topaz"
-	//DbPassword ...
-	DbPassword = "respiteforever"
-	//DbName ...
-	DbName = "stream"
-	//DbHost ...
-	DbHost = "cluster0-shard-00-00-a9ipr.mongodb.net:27017,cluster0-shard-00-01-a9ipr.mongodb.net:27017,cluster0-shard-00-02-a9ipr.mongodb.net:27017"
-	//DbURL ...
-	DbURL = "mongodb://" + DbUser + ":" + DbPassword + "@" + DbHost + "/" + DbName + "/?ssl=true&replicaSet=Cluster0-shard-0&authSource=admin"
-)
+var DbInfo = &mgo.DialInfo{
+	Addrs: []string{
+		"cluster0-shard-00-00-qqlpb.mongodb.net:27017",
+		"cluster0-shard-00-01-qqlpb.mongodb.net:27017",
+		"cluster0-shard-00-02-qqlpb.mongodb.net:27017",
+	},
+	Database:       "admin",
+	ReplicaSetName: "Cluster0-shard-0",
+	Username:       "admin",
+	Password:       "VwJnf1lQmASMnVET",
+}
 
 var db *mgo.Database
+var ErrNotFound = errors.New("not found")
 
 //Init ...
 func Init() {
-	var err error
-	db, err = ConnectDB(DbURL)
+	tlsConfig := &tls.Config{}
+	DbInfo.DialServer = func(addr *mgo.ServerAddr) (net.Conn, error) {
+		conn, err := tls.Dial("tcp", addr.String(), tlsConfig)
+		return conn, err
+	}
+
+	session, err := mgo.DialWithInfo(DbInfo)
 	if err != nil {
 		panic(err)
 	}
-}
-
-//ConnectDB ...
-func ConnectDB(url string) (*mgo.Database, error) {
-	session, error := mgo.Dial(url)
-	return session.DB(DbName), error
+	db = session.DB("stream")
 }
 
 //GetDB ...
