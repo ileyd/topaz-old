@@ -27,7 +27,7 @@ func HandleSonarrEventRegistration(event models.SonarrEvent) (err error) {
 	extension := filepath.Ext(event.EpisodeFile.RelativePath)
 	dir := filepath.Dir(event.Series.Path + "/" + event.EpisodeFile.RelativePath)
 	if extension == "mkv" || extension == ".mkv" {
-		utils.RemuxMKVToMP4(dir, filepath.Base(event.EpisodeFile.RelativePath))
+		utils.RemuxMKVToMP4(dir, event.Series.Path+"/"+event.EpisodeFile.RelativePath)
 	}
 
 	fmt.Println("step4")
