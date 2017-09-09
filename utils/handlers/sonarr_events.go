@@ -1,6 +1,7 @@
 package handlers
 
 import (
+	"fmt"
 	"path/filepath"
 
 	"github.com/ileyd/topaz/db"
@@ -21,11 +22,15 @@ func HandleSonarrEventRegistration(event models.SonarrEvent) (err error) {
 		return
 	}
 
+	fmt.Println("step3")
+
 	extension := filepath.Ext(event.EpisodeFile.Path)
 	dir := filepath.Dir(event.EpisodeFile.Path)
-	if !(extension == "mp4" || extension == ".mp4") {
+	if extension == "mkv" || extension == ".mkv" {
 		utils.RemuxMKVToMP4(dir, event.EpisodeFile.RelativePath)
 	}
+
+	fmt.Println("step4")
 
 	series, err2 := seriesModel.GetOne("tvdbID", event.Series.TvdbID)
 	if err2 == db.ErrNotFound {
@@ -34,11 +39,16 @@ func HandleSonarrEventRegistration(event models.SonarrEvent) (err error) {
 		series.KitsuID, err = utils.GetKitsuIDByTitle(event.Series.Title) // unhandled error
 		series.CanonicalTitle = event.Series.Title
 	}
+	fmt.Println("step5")
 	var seasonNumber = event.Episodes[0].SeasonNumber
 	if _, ok := series.Seasons[seasonNumber]; !ok {
 		var season models.Season
 		season.SeasonNumber = seasonNumber
 		season.SeriesID = series.ID
+		season.Episodes = make(map[int]models.Episode)
+		if series.Seasons == nil {
+			series.Seasons = make(map[int]models.Season)
+		}
 		series.Seasons[seasonNumber] = season
 	}
 	var episodeNumber = event.Episodes[0].EpisodeNumber
@@ -47,6 +57,7 @@ func HandleSonarrEventRegistration(event models.SonarrEvent) (err error) {
 		episode.SeasonNumber = seasonNumber
 		episode.EpisodeNumber = episodeNumber
 		episode.SeriesID = series.ID
+		episode.Media = make(map[string]models.Media)
 		series.Seasons[seasonNumber].Episodes[episodeNumber] = episode
 	}
 	series.Seasons[seasonNumber].Episodes[episodeNumber].Media[uuid.NewV4().String()] = models.Media{

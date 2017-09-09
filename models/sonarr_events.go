@@ -92,6 +92,9 @@ func (e *SonarrEvent) Job() (job Job) {
 		job.Type = FetchJob
 		job.Episodes = make(map[int]map[int]bool)
 		for _, ep := range e.Episodes {
+			if job.Episodes[ep.SeasonNumber] == nil {
+				job.Episodes[ep.SeasonNumber] = make(map[int]bool)
+			}
 			job.Episodes[ep.SeasonNumber][ep.EpisodeNumber] = true
 		}
 		break
