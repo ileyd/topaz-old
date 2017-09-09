@@ -67,7 +67,7 @@ type SonarrEvent struct {
 		ID     int    `json:"id"`
 		Title  string `json:"title"`
 		Path   string `json:"path"`
-		TvdbID int    `json:"tvdbId"`
+		TvdbID int    `json:"tvdbid"`
 	} `json:"series" bson:"series"`
 }
 
