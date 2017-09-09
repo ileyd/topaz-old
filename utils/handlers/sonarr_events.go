@@ -5,7 +5,6 @@ import (
 	"log"
 	"path/filepath"
 
-	"github.com/ileyd/topaz/db"
 	"github.com/ileyd/topaz/models"
 	"github.com/ileyd/topaz/utils"
 	uuid "github.com/satori/go.uuid"
@@ -33,12 +32,13 @@ func HandleSonarrEventRegistration(event models.SonarrEvent) (err error) {
 
 	fmt.Println("step4")
 
-	series, err2 := seriesModel.GetOne("tvdbID", event.Series.TvdbID)
-	if err2 == db.ErrNotFound {
+	series, err := seriesModel.GetOne("tvdbID", event.Series.TvdbID)
+	if err != nil {
 		series = models.Series{}
 		series.TVDBID = event.Series.TvdbID
 		series.KitsuID, err = utils.GetKitsuIDByTitle(event.Series.Title) // unhandled error
 		series.CanonicalTitle = event.Series.Title
+		err = seriesModel.Create(series)
 	}
 	fmt.Println("step5")
 	var seasonNumber = event.Episodes[0].SeasonNumber
@@ -61,8 +61,10 @@ func HandleSonarrEventRegistration(event models.SonarrEvent) (err error) {
 		episode.Media = make(map[string]models.Media)
 		series.Seasons[seasonNumber].Episodes[episodeNumber] = episode
 	}
-	series.Seasons[seasonNumber].Episodes[episodeNumber].Media[uuid.NewV4().String()] = models.Media{
+	mediaUUID := uuid.NewV4().String()
+	series.Seasons[seasonNumber].Episodes[episodeNumber].Media[mediaUUID] = models.Media{
 		SeriesID:      series.ID,
+		UUID:          mediaUUID,
 		SeasonNumber:  seasonNumber,
 		EpisodeNumber: episodeNumber,
 		Path:          event.EpisodeFile.Path,
@@ -73,11 +75,8 @@ func HandleSonarrEventRegistration(event models.SonarrEvent) (err error) {
 			ReleaseName:    event.EpisodeFile.SceneName,
 		},
 	}
-	if err2 != nil {
-		err = seriesModel.Create(series)
-	} else {
-		err = seriesModel.Update(series)
-	}
+
+	err = seriesModel.Update(series)
 
 	log.Println("step6", series, "==", event)
 

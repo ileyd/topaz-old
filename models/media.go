@@ -17,6 +17,7 @@ type Media struct {
 	Release Release `json:"release" bson:"release"`
 
 	Path string `json:"path" bson:"path"`
+	URL  string `json:"url" bson:"url"`
 }
 
 // MediaModel is used to group model functions relating to Media objects
