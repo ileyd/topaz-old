@@ -73,7 +73,7 @@ func HandleSonarrEventRegistration(event models.SonarrEvent) (err error) {
 			ReleaseName:    event.EpisodeFile.SceneName,
 		},
 	}
-	if err2 == db.ErrNotFound {
+	if err2 != nil {
 		err = seriesModel.Create(series)
 	} else {
 		err = seriesModel.Update(series)
