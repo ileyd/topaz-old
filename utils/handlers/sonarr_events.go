@@ -2,6 +2,7 @@ package handlers
 
 import (
 	"fmt"
+	"log"
 	"path/filepath"
 
 	"github.com/ileyd/topaz/db"
@@ -77,6 +78,8 @@ func HandleSonarrEventRegistration(event models.SonarrEvent) (err error) {
 	} else {
 		err = seriesModel.Update(series)
 	}
+
+	log.Println("step6", series)
 
 	return err
 }
