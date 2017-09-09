@@ -18,6 +18,7 @@ func baseFilename(filename string) (basename string) {
 }
 
 func RemuxMKVToMP4(dir, source string) {
+	log.Println("RemuxMKVToMP4: dir:", dir, "source:", source, "baseFilename:", baseFilename(source))
 	if filepath.Ext(source) == ".mp4" {
 		log.Println("File is already an MP4 file; exiting")
 		return
