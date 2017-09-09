@@ -12,7 +12,7 @@ const (
 
 // Series describes a series we have in our database
 type Series struct {
-	ID             string `json:"_id" bson:"_id"`
+	ID             string `json:"_id,omitempty" bson:"_id,omitempty"`
 	KitsuID        int    `json:"kitsuID" bson:"kitsuID"`
 	TVDBID         int    `json:"tvdbID" bson:"tvdbID"`
 	CanonicalTitle string `json:"canonicalTitle" bson:"canonicalTitle"`
@@ -23,7 +23,7 @@ type Series struct {
 
 // Season describes an series' season
 type Season struct {
-	ID           string          `json:"_id" bson:"_id"`
+	ID           string          `json:"_id,omitempty" bson:"_id,omitempty"`
 	SeriesID     string          `json:"seriesID" bson:"seriesID"`
 	SeasonNumber int             `json:"seasonNumber" bson:"seasonNumber"`
 	EpisodeCount int             `json:"episodeCount" bson:"episodeCount"`
@@ -32,7 +32,7 @@ type Season struct {
 
 // Episode describes a media file relating to an anime episode
 type Episode struct {
-	ID            string           `json:"_id" bson:"_id"`
+	ID            string           `json:"_id,omitempty" bson:"_id,omitempty"`
 	SeriesID      string           `json:"seriesID" bson:"seriesID"`
 	SeasonNumber  int              `json:"seasonNumber" bson:"seasonNumber"`
 	EpisodeNumber int              `json:"episodeNumber" bson:"episodeNumber"`

@@ -8,7 +8,7 @@ import (
 
 // Media describes a media file we have in storage
 type Media struct {
-	ID            string `json:"_id" bson:"_id"`
+	ID            string `json:"_id,omitempty" bson:"_id,omitempty"`
 	UUID          string `json:"uuid" bson:"uuid"`
 	SeriesID      string `json:"seriesID" bson:"seriesID"`
 	SeasonNumber  int    `json:"seasonNumber" bson:"seasonNumber"`
