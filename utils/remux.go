@@ -1,8 +1,8 @@
 package utils
 
 import (
-	"bytes"
 	"log"
+	"os"
 	"os/exec"
 	"path/filepath"
 	"strings"
@@ -32,12 +32,10 @@ func RemuxMKVToMP4(dir, source string) {
 		"-vcodec copy",
 		baseFilename(source) + ".mp4",
 	}
-	var out bytes.Buffer
-	cmd.Stdout = &out
+	cmd.Stdout = os.Stdout
 	err := cmd.Run()
 	if err != nil {
 		log.Fatal(err)
 	}
-	log.Println(out.String())
 	log.Println("Remuxed " + source + " to " + baseFilename(source) + ".mp4")
 }
