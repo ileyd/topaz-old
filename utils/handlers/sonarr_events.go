@@ -38,7 +38,8 @@ func HandleSonarrEventRegistration(event models.SonarrEvent) (err error) {
 		series.TVDBID = event.Series.TvdbID
 		series.KitsuID, err = utils.GetKitsuIDByTitle(event.Series.Title) // unhandled error
 		series.CanonicalTitle = event.Series.Title
-		err = seriesModel.Create(series)
+		err = seriesModel.Create(series)                                // unhandled error
+		series, err = seriesModel.GetOne("tvdbID", event.Series.TvdbID) // unhandled error
 	}
 	fmt.Println("step5")
 	var seasonNumber = event.Episodes[0].SeasonNumber
