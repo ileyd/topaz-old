@@ -29,6 +29,7 @@ func RemuxMKVToMP4(dir, source string) {
 	cmd.Path = ffmpegPath
 	cmd.Args = []string{
 		"-i " + source,
+		"-i", source,
 		"-codec", "copy",
 		baseFilename(source) + ".mp4",
 	}
