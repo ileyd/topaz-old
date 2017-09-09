@@ -79,7 +79,7 @@ func HandleSonarrEventRegistration(event models.SonarrEvent) (err error) {
 		err = seriesModel.Update(series)
 	}
 
-	log.Println("step6", series)
+	log.Println("step6", series, "==", event)
 
 	return err
 }
