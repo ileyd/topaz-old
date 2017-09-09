@@ -34,35 +34,35 @@ const (
 type SonarrEvent struct {
 	Episodes []struct {
 		ID             int       `json:"id"`
-		EpisodeNumber  int       `json:"episodeNumber"`
-		SeasonNumber   int       `json:"seasonNumber"`
+		EpisodeNumber  int       `json:"episodenumber"`
+		SeasonNumber   int       `json:"seasonnumber"`
 		Title          string    `json:"title"`
-		AirDate        string    `json:"airDate"`
-		AirDateUtc     time.Time `json:"airDateUtc"`
+		AirDate        string    `json:"airdate"`
+		AirDateUtc     time.Time `json:"airdateutc"`
 		Quality        string    `json:"quality"`
-		QualityVersion int       `json:"qualityVersion"`
-		ReleaseGroup   string    `json:"releaseGroup"`
-		SceneName      string    `json:"sceneName"`
+		QualityVersion int       `json:"qualityversion"`
+		ReleaseGroup   string    `json:"releasegroup"`
+		SceneName      string    `json:"scenename"`
 	} `json:"episodes" bson:"episodes"`
 	EpisodeFile struct {
 		ID             int    `json:"id"`
-		RelativePath   string `json:"relativePath"`
+		RelativePath   string `json:"relativepath"`
 		Path           string `json:"path"`
 		Quality        string `json:"quality"`
-		QualityVersion int    `json:"qualityVersion"`
-		ReleaseGroup   string `json:"releaseGroup"`
-		SceneName      string `json:"sceneName"`
-	} `json:"episodeFile"`
+		QualityVersion int    `json:"qualityversion"`
+		ReleaseGroup   string `json:"releasegroup"`
+		SceneName      string `json:"scenename"`
+	} `json:"episodefile" bson:"episodefile"`
 	Release struct {
 		Quality        string `json:"quality"`
-		QualityVersion int    `json:"qualityVersion"`
-		ReleaseGroup   string `json:"releaseGroup"`
-		ReleaseTitle   string `json:"releaseTitle"`
+		QualityVersion int    `json:"qualityversion"`
+		ReleaseGroup   string `json:"releasegroup"`
+		ReleaseTitle   string `json:"releasetitle"`
 		Indexer        string `json:"indexer"`
 		Size           int    `json:"size"`
 	} `json:"release" bson:"release"`
-	IsUpgrade bool   `json:"isUpgrade"`
-	EventType string `json:"eventType" bson:"eventType"`
+	IsUpgrade bool   `json:"isupgrade" bson:"isupgrade"`
+	EventType string `json:"eventtype" bson:"eventtype"`
 	Series    struct {
 		ID     int    `json:"id"`
 		Title  string `json:"title"`
