@@ -33,6 +33,7 @@ func RemuxMKVToMP4(dir, source string) {
 		baseFilename(source) + ".mp4",
 	}
 	cmd.Stdout = os.Stdout
+	cmd.Stderr = os.Stderr
 	err := cmd.Run()
 	if err != nil {
 		log.Fatal(err)
