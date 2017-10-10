@@ -17,17 +17,17 @@ type Series struct {
 	TVDBID         int    `json:"tvdbID" bson:"tvdbID"`
 	CanonicalTitle string `json:"canonicalTitle" bson:"canonicalTitle"`
 
-	SeasonCount int            `json:"seasonCount" bson:"seasonCount"`
-	Seasons     map[int]Season `json:"seasons" bson:"seasons"`
+	SeasonCount int               `json:"seasonCount" bson:"seasonCount"`
+	Seasons     map[string]Season `json:"seasons" bson:"seasons"`
 }
 
 // Season describes an series' season
 type Season struct {
-	ID           string          `json:"_id,omitempty" bson:"_id,omitempty"`
-	SeriesID     string          `json:"seriesID" bson:"seriesID"`
-	SeasonNumber int             `json:"seasonNumber" bson:"seasonNumber"`
-	EpisodeCount int             `json:"episodeCount" bson:"episodeCount"`
-	Episodes     map[int]Episode `json:"episodes" bson:"episodes"`
+	ID           string             `json:"_id,omitempty" bson:"_id,omitempty"`
+	SeriesID     string             `json:"seriesID" bson:"seriesID"`
+	SeasonNumber int                `json:"seasonNumber" bson:"seasonNumber"`
+	EpisodeCount int                `json:"episodeCount" bson:"episodeCount"`
+	Episodes     map[string]Episode `json:"episodes" bson:"episodes"`
 }
 
 // Episode describes a media file relating to an anime episode
@@ -93,7 +93,7 @@ func (m *SeasonModel) Add(s Season) error {
 	if err != nil {
 		return err
 	}
-	sr.Seasons[s.SeasonNumber] = s
+	sr.Seasons[string(s.SeasonNumber)] = s
 	return srm.Update(sr)
 }
 

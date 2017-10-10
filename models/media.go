@@ -31,7 +31,7 @@ func (m *MediaModel) Add(me Media) error {
 	if err != nil {
 		return err
 	}
-	s.Seasons[me.SeasonNumber].Episodes[me.EpisodeNumber].Media[me.UUID] = me
+	s.Seasons[string(me.SeasonNumber)].Episodes[string(me.EpisodeNumber)].Media[me.UUID] = me
 	if me.UUID == "" {
 		me.UUID = uuid.NewV4().String()
 	}
@@ -50,6 +50,6 @@ func (m *MediaModel) Delete(me Media) error {
 	if err != nil {
 		return err
 	}
-	delete(s.Seasons[me.SeasonNumber].Episodes[me.EpisodeNumber].Media, me.UUID)
+	delete(s.Seasons[string(me.SeasonNumber)].Episodes[string(me.EpisodeNumber)].Media, me.UUID)
 	return sm.Update(s)
 }
