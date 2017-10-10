@@ -9,13 +9,13 @@ import (
 	"github.com/ileyd/topaz/utils/handlers"
 )
 
-//SonarrEventController ...
-type SonarrEventController struct{}
+//SonarrEventsController ...
+type SonarrEventsController struct{}
 
 var eventModel = new(models.SonarrEventModel)
 
 //Create ...
-func (ctrl SonarrEventController) Create(c *gin.Context) {
+func (ctrl SonarrEventsController) Create(c *gin.Context) {
 	var event models.SonarrEvent
 
 	if err := c.BindJSON(&event); err != nil {
@@ -32,13 +32,13 @@ func (ctrl SonarrEventController) Create(c *gin.Context) {
 }
 
 //All ...
-func (ctrl SonarrEventController) All(c *gin.Context) {
+func (ctrl SonarrEventsController) All(c *gin.Context) {
 	var events = eventModel.GetAll()
 	c.JSON(200, events)
 }
 
 //One ...
-func (ctrl SonarrEventController) One(c *gin.Context) {
+func (ctrl SonarrEventsController) One(c *gin.Context) {
 	var id = c.Param("id")
 	idInt, err := strconv.ParseInt(id, 10, 64)
 	if err != nil {
