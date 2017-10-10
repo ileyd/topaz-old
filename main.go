@@ -52,10 +52,16 @@ func main() {
 
 	api := r.Group("/api")
 	{
-		sonarrEvents := new(controllers.SonarrEventController)
-		sEC := api.Group("/events")
-		sEC.POST("/create", sonarrEvents.Create)
-		sEC.GET("/all", sonarrEvents.All)
+		sonarrEventsController := new(controllers.SonarrEventsController)
+		events := api.Group("/sonarr")
+		events.POST("/register", sonarrEventsController.Create)
+		events.GET("/all", sonarrEventsController.All)
+
+		seriesController := new(controllers.SeriesController)
+		series := api.Group("/series")
+		series.GET("/all", seriesController.All)
+		series.GET("/one", seriesController.One)
+
 	}
 
 	r.LoadHTMLGlob("./public/html/*")
