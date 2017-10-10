@@ -14,6 +14,8 @@ var eventModel = new(models.SonarrEventModel)
 var jobModel = new(models.JobModel)
 var seriesModel = new(models.SeriesModel)
 
+var sonarrEventRegistrationChannel = make(chan models.SonarrEvent)
+
 // HandleSonarrEventRegistration ... self exlanatory
 func HandleSonarrEventRegistration(event models.SonarrEvent) (err error) {
 	eventModel.Create(event)     // register the event
