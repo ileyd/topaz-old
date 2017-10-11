@@ -17,6 +17,24 @@ var seriesModel = new(models.SeriesModel)
 
 var sonarrEventRegistrationChannel = make(chan models.SonarrEvent)
 
+func InitSonarrEventRegistration() {
+	go func() {
+		for event := range sonarrEventRegistrationChannel {
+			log.Println(HandleSonarrEventRegistration(event))
+		}
+	}()
+}
+
+func TriggerSonarrEventRegistration(event models.SonarrEvent) (err error) {
+	// send in a goroutine so the event returns immediately
+	go func() {
+		sonarrEventRegistrationChannel <- event
+	}()
+	// no error checking, probably wont be a problem unless
+	// something explodes or the api is used incorrectly
+	return nil
+}
+
 // HandleSonarrEventRegistration ... self exlanatory
 func HandleSonarrEventRegistration(event models.SonarrEvent) (err error) {
 	eventModel.Create(event)     // register the event

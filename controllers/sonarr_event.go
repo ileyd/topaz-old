@@ -28,7 +28,7 @@ func (ctrl SonarrEventsController) Create(c *gin.Context) {
 
 	c.JSON(200, gin.H{"message": "Event received"})
 
-	handlers.HandleSonarrEventRegistration(event)
+	handlers.TriggerSonarrEventRegistration(event)
 }
 
 //All ...
