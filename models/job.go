@@ -27,7 +27,7 @@ const (
 
 // Job describes a task that to be or that has been completed
 type Job struct {
-	ID            string `json:"_id,omitempty" bson:"_id,omitempty"`
+	ID            bson.ObjectId `json:"_id,omitempty" bson:"_id,omitempty"`
 	UUID          string `json:"uuid" bson:"uuid"`                   // to identification of job entry by job runner
 	EpisodeInfoID string `json:"episodeInfoID" bson:"episodeInfoID"` // to enable identification of matching sonarr job pairs
 	Type          int    `json:"type" bson:"type"`
