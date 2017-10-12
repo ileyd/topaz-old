@@ -1,12 +1,16 @@
 package sonarr
 
-var Client SonarrClient
+import (
+	"github.com/ileyd/sonarr"
+)
 
-func InitSonarrClient(address, apiKey string) error {
-	Client, err := NewSonarrClient(address, apiKey)
+var Client *sonarr.SonarrClient
+
+func InitSonarrClient(address, apiKey string) (err error) {
+	Client, err = sonarr.NewSonarrClient(address, apiKey)
 	return err
 }
 
-func GetClient() {
+func GetClient() *sonarr.SonarrClient {
 	return Client
 }
