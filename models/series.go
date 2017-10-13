@@ -2,6 +2,7 @@ package models
 
 import (
 	"github.com/ileyd/topaz/db"
+	"github.com/ileyd/topaz/utils"
 	"gopkg.in/mgo.v2/bson"
 )
 
@@ -13,9 +14,9 @@ const (
 // Series describes a series we have in our database
 type Series struct {
 	ID             bson.ObjectId `json:"_id,omitempty" bson:"_id,omitempty"`
-	KitsuID        int    `json:"kitsuID" bson:"kitsuID"`
-	TVDBID         int    `json:"tvdbID" bson:"tvdbID"`
-	CanonicalTitle string `json:"canonicalTitle" bson:"canonicalTitle"`
+	KitsuID        int           `json:"kitsuID" bson:"kitsuID"`
+	TVDBID         int           `json:"tvdbID" bson:"tvdbID"`
+	CanonicalTitle string        `json:"canonicalTitle" bson:"canonicalTitle"`
 
 	SeasonCount int               `json:"seasonCount" bson:"seasonCount"`
 	Seasons     map[string]Season `json:"seasons" bson:"seasons"`
@@ -23,8 +24,8 @@ type Series struct {
 
 // Season describes an series' season
 type Season struct {
-	ID           bson.ObjectId             `json:"_id,omitempty" bson:"_id,omitempty"`
-	SeriesID     string             `json:"seriesID" bson:"seriesID"`
+	ID           bson.ObjectId      `json:"_id,omitempty" bson:"_id,omitempty"`
+	SeriesID     bson.ObjectId      `json:"seriesID" bson:"seriesID"`
 	SeasonNumber int                `json:"seasonNumber" bson:"seasonNumber"`
 	EpisodeCount int                `json:"episodeCount" bson:"episodeCount"`
 	Episodes     map[string]Episode `json:"episodes" bson:"episodes"`
@@ -32,8 +33,8 @@ type Season struct {
 
 // Episode describes a media file relating to an anime episode
 type Episode struct {
-	ID            bson.ObjectId           `json:"_id,omitempty" bson:"_id,omitempty"`
-	SeriesID      string           `json:"seriesID" bson:"seriesID"`
+	ID            bson.ObjectId    `json:"_id,omitempty" bson:"_id,omitempty"`
+	SeriesID      bson.ObjectId    `json:"seriesID" bson:"seriesID"`
 	SeasonNumber  int              `json:"seasonNumber" bson:"seasonNumber"`
 	EpisodeNumber int              `json:"episodeNumber" bson:"episodeNumber"`
 	MediaCount    int              `json:"mediaCount" bson:"mediaCount"`
@@ -84,6 +85,29 @@ func (m *SeriesModel) GetAll() ([]Series, error) {
 	return s, err
 }
 
+func (m *SeriesModel) CreateIfNotExists(s sonarrClient.SonarrSeries) (seriesObject Series, err error) {
+	// if series object does not exist, create it
+	seriesObject, err = m.GetOne("tvdbID", s.TvdbID)
+	if err != nil { // if there is an error, series probably doesn't exist so lets create it
+		seriesObject = Series{}
+		seriesObject.TVDBID = s.TvdbID
+		seriesObject.KitsuID, err = utils.GetKitsuIDByTitle(s.Title) // unhandled error
+		if err != nil {
+			return Series{}, err
+		}
+		seriesObject.CanonicalTitle = s.Title
+		err = m.Create(seriesObject) // unhandled error
+		if err != nil {
+			return Series{}, err
+		}
+		seriesObject, err = m.GetOne("tvdbID", s.TvdbID) // unhandled error
+		if err != nil {
+			return Series{}, err
+		}
+	}
+	return seriesObject, nil
+}
+
 // SeasonModel is used to group model functions relating to Season objects
 type SeasonModel struct{}
 
@@ -95,6 +119,24 @@ func (m *SeasonModel) Add(s Season) error {
 	}
 	sr.Seasons[string(s.SeasonNumber)] = s
 	return srm.Update(sr)
+}
+
+func (m *SeasonModel) CreateIfNotExists(series Series, seasonNumber int) (err error) {
+	// if season object doesn't exist create it
+	if _, ok := series.Seasons[string(seasonNumber)]; !ok {
+		var season Season
+		season.SeasonNumber = seasonNumber
+		season.SeriesID = series.ID
+		season.Episodes = make(map[string]Episode)
+		// if seasons map doesn't exist, make it
+		if series.Seasons == nil {
+			series.Seasons = make(map[string]Season)
+		}
+		series.Seasons[string(seasonNumber)] = season
+		var srm SeriesModel
+		return srm.Update(series)
+	}
+	return nil
 }
 
 // EpisodeModel is used to group model functions relating to Episode objects
