@@ -50,12 +50,14 @@ func UpdateSeriesFromSonarr() (err error) {
 		log.Println("using series ID", s.ID)
 		episodes, err := sonarrClient.GetClient().GetAllEpisodes(s.ID)
 		if err != nil {
-			return err
+			log.Println(err)
+			continue
 		}
 		// get all episodeFiles so that we may iterate through them all
 		episodeFiles, err := sonarrClient.GetClient().GetAllEpisodeFiles(s.ID)
 		if err != nil {
-			return err
+			log.Println(err)
+			continue
 		}
 
 		// iterate through all episodeFiles
@@ -63,10 +65,15 @@ func UpdateSeriesFromSonarr() (err error) {
 			// find matching episode and season number for a gien episodeFile
 			seasonNumber, episodeNumber, err := findEpisodeFromEpisodeFile(episodes, ef.ID)
 			if err != nil {
-				return err
+				log.Println(err)
+				continue
 			}
 			// get the ID for the database object representing the series we are concerned with
-			dbSeries, err := seriesModel.GetOne("tvdbID", s.TvdbID)
+			dbSeries, err := seriesModel.CreateIfNotExists(s)
+			if err != nil {
+				log.Println("dbSeries", err)
+				// continue
+			}
 			dbSeriesID := dbSeries.ID
 
 			var media = models.Media{
