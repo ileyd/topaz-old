@@ -4,6 +4,9 @@ import (
 	"encoding/json"
 	"errors"
 	"log"
+	"net/url"
+	"os"
+	"strings"
 
 	"github.com/ileyd/sonarr"
 	"github.com/ileyd/topaz/models"
@@ -16,6 +19,16 @@ type SonarrEpisodeInfo struct {
 }
 
 var seriesModel = new(models.SeriesModel)
+
+func GenerateB2URL(absPath string) string {
+	pathComponents := strings.Split(absPath, string(os.PathSeparator))
+	relPath := strings.Join(pathComponents[2:], string(os.PathSeparator))
+
+	baseURL := "https://f001.backblazeb2.com/file/testing-content/"
+	urlRelPath := strings.Replace(url.QueryEscape(relPath), "%2F", "/", -1)
+
+	return baseURL + urlRelPath
+}
 
 func findEpisodeFromEpisodeFile(episodes []sonarr.Episode, efID int) (seasonNumber, episodeNumber int, err error) {
 	var episode sonarr.Episode
@@ -89,7 +102,7 @@ func UpdateSeriesFromSonarr() (err error) {
 					Size:           ef.Size,
 				},
 				Path: ef.Path,
-				URL:  "todo",
+				URL:  GenerateB2URL(ef.Path),
 			}
 
 			jsonValue, err := json.Marshal(media)
