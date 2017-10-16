@@ -7,5 +7,5 @@ type Release struct {
 	ReleaseGroup   string `json:"releaseGroup" bson:"releaseGroup"`
 	ReleaseName    string `json:"releaseName" bson:"releaseName"`
 	Indexer        string `json:"indexer" bson:"indexer"`
-	Size           int    `json:"size" bson:"size"`
+	Size           int64  `json:"size" bson:"size"`
 }

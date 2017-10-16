@@ -9,10 +9,10 @@ import (
 // Media describes a media file we have in storage
 type Media struct {
 	ID            bson.ObjectId `json:"_id,omitempty" bson:"_id,omitempty"`
-	UUID          string `json:"uuid" bson:"uuid"`
-	SeriesID      string `json:"seriesID" bson:"seriesID"`
-	SeasonNumber  int    `json:"seasonNumber" bson:"seasonNumber"`
-	EpisodeNumber int    `json:"episodeNumber" bson:"episodeNumber"`
+	UUID          string        `json:"uuid" bson:"uuid"`
+	SeriesID      bson.ObjectId `json:"seriesID" bson:"seriesID"`
+	SeasonNumber  int           `json:"seasonNumber" bson:"seasonNumber"`
+	EpisodeNumber int           `json:"episodeNumber" bson:"episodeNumber"`
 
 	Release Release `json:"release" bson:"release"`
 
