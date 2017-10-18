@@ -1,14 +1,17 @@
 package main
 
 import (
-	"encoding/json"
 	"errors"
 	"log"
 
 	"github.com/ileyd/sonarr"
+	uuid "github.com/satori/go.uuid"
 )
 
 var seriesModel = new(SeriesModel)
+var seasonModel = new(SeasonModel)
+var episodeModel = new(EpisodeModel)
+var mediaModel = new(MediaModel)
 
 // findEpisodeFromEpisodeFile accepts an episodes slice and an episodeFile ID and finds the episode in the slice that corresponds to the given episodeFile ID
 func findEpisodeFromEpisodeFile(episodes []sonarr.Episode, efID int) (seasonNumber, episodeNumber int, err error) {
@@ -33,11 +36,8 @@ func updateSeriesFromSonarr() (err error) {
 	if err != nil {
 		return err
 	}
-	/* DEBUG */
-	seriesJSON, err := json.Marshal(series)
-	log.Println("seriesJSON err", err)
-	log.Println("seriesJSON", string(seriesJSON))
-	/* END DEBUG */
+
+	var continues = 0
 
 	// iterte through all series
 	for _, s := range series {
@@ -46,12 +46,14 @@ func updateSeriesFromSonarr() (err error) {
 		episodes, err := sonarrClient.GetAllEpisodes(s.ID)
 		if err != nil {
 			log.Println(err)
+			continues++
 			continue
 		}
 		// get all episodeFiles so that we may iterate through them all
 		episodeFiles, err := sonarrClient.GetAllEpisodeFiles(s.ID)
 		if err != nil {
 			log.Println(err)
+			continues++
 			continue
 		}
 
@@ -61,19 +63,34 @@ func updateSeriesFromSonarr() (err error) {
 			seasonNumber, episodeNumber, err := findEpisodeFromEpisodeFile(episodes, ef.ID)
 			if err != nil {
 				log.Println(err)
+				continues++
 				continue
 			}
 			// get the ID for the database object representing the series we are concerned with
 			dbSeries, err := seriesModel.CreateIfNotExists(s)
 			if err != nil {
 				log.Println("dbSeries", err)
-				// continue
+				continues++
+				continue
 			}
 			dbSeriesID := dbSeries.ID
+			err = seasonModel.CreateIfNotExists(dbSeries, seasonNumber)
+			if err != nil {
+				log.Println("seasonModel CINE", err)
+				continues++
+				continue
+			}
+			err = episodeModel.CreateIfNotExists(dbSeries, seasonNumber, episodeNumber)
+			if err != nil {
+				log.Println("episodeModel CINE", err)
+				continues++
+				continue
+			}
 
 			url, err := GenerateB2URL(ef.Path)
 			if err != nil {
 				log.Println(err)
+				continues++
 				continue
 			}
 
@@ -81,6 +98,7 @@ func updateSeriesFromSonarr() (err error) {
 				SeriesID:      dbSeriesID,
 				SeasonNumber:  seasonNumber,
 				EpisodeNumber: episodeNumber,
+				UUID:          uuid.NewV4(),
 				Release: Release{
 					Quality:        ef.Quality.Quality.Name,
 					QualityVersion: ef.Quality.Quality.ID,
@@ -93,11 +111,12 @@ func updateSeriesFromSonarr() (err error) {
 				URL:  *url,
 			}
 
-			jsonValue, err := json.Marshal(media)
-			log.Println(string(jsonValue))
+			mediaModel.Add(media)
+
 		}
 
 	}
 
+	log.Println("Skipped", continues, "episodes due to errors")
 	return nil
 }
