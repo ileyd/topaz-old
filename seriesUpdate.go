@@ -10,6 +10,7 @@ import (
 
 var seriesModel = new(SeriesModel)
 
+// findEpisodeFromEpisodeFile accepts an episodes slice and an episodeFile ID and finds the episode in the slice that corresponds to the given episodeFile ID
 func findEpisodeFromEpisodeFile(episodes []sonarr.Episode, efID int) (seasonNumber, episodeNumber int, err error) {
 	var episode sonarr.Episode
 	for _, e := range episodes {
@@ -25,6 +26,7 @@ func findEpisodeFromEpisodeFile(episodes []sonarr.Episode, efID int) (seasonNumb
 	return episode.SeasonNumber, episode.EpisodeNumber, nil
 }
 
+// updateSeriesFromSonarr iterates through all series in Sonarr's database and populates our database based on a processed form of this information
 func updateSeriesFromSonarr() (err error) {
 	// get all series so that we may loop through them
 	series, err := sonarrClient.GetAllSeries()
