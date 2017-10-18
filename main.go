@@ -1,12 +1,14 @@
 package main
 
-import (
-	"log"
-)
+import "log"
 
 func main() {
-	loadConfig()
+	err := loadConfig()
+	if err != nil {
+		panic(err)
+	}
+	log.Println(config)
 	initDb()
 	initSonarrClient()
-	log.Println("main error", updateSeriesFromSonarr())
+	// log.Println("main error", updateSeriesFromSonarr())
 }
