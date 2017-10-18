@@ -3,12 +3,18 @@ package main
 import "log"
 
 func main() {
-	err := loadConfig()
-	if err != nil {
+	if err := loadConfig(); err != nil {
 		panic(err)
 	}
 	log.Println(config)
-	initDb()
-	initSonarrClient()
-	// log.Println("main error", updateSeriesFromSonarr())
+
+	if err := initSonarrClient(); err != nil {
+		panic(err)
+	}
+
+	if err := initDb(); err != nil {
+		panic(err)
+	}
+
+	log.Println("main error", updateSeriesFromSonarr())
 }
