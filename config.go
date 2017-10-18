@@ -36,8 +36,8 @@ type b2Config struct {
 var config topazConfig
 
 // loadConfig loads the application configuration from disk
-func loadConfig() {
-	configor.Load(&config, "config.yml")
+func loadConfig() error {
+	return configor.Load(&config, "config.json")
 }
 
 // DialInfo returns an mgo.DialInfo object based on the parameters specified in the application configuration

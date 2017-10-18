@@ -1,0 +1,21 @@
+{
+  "B2": {
+    "BaseURL": "https://f001.backblazeb2.com/file/testing-content/",
+    "StrippedComponents": 1
+  },
+  "DB": {
+    "Addrs": [
+      "cluster0-shard-00-00-qqlpb.mongodb.net:27017",
+      "cluster0-shard-00-01-qqlpb.mongodb.net:27017",
+      "cluster0-shard-00-02-qqlpb.mongodb.net:27017"
+    ],
+    "ReplicaSetName": "Cluster0-shard-0",
+    "DefaultDB": "stream",
+    "Username": "admin",
+    "Password": "VwJnf1lQmASMnVET"
+  },
+  "Sonarr": {
+    "Addr": "http://localhost:8989",
+    "APIKey": "7cda98a81bc44aa68d9447d1957cb29b"
+  }
+}
