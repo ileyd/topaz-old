@@ -1,6 +1,6 @@
 {
   "B2": {
-    "BaseURL": "https://f001.backblazeb2.com/file/testing-content/",
+    "BaseURL": "https://f001.backblazeb2.com/file/streaming-content/",
     "StrippedComponents": 1
   },
   "DB": {
