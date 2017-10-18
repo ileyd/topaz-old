@@ -6,7 +6,6 @@ func main() {
 	if err := loadConfig(); err != nil {
 		panic(err)
 	}
-	log.Println(config)
 
 	if err := initSonarrClient(); err != nil {
 		panic(err)
