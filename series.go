@@ -93,7 +93,7 @@ func (m *SeriesModel) CreateIfNotExists(s sonarr.SonarrSeries) (seriesObject Ser
 	// if series object does not exist, create it
 	seriesObject, err = m.GetOne("tvdbID", s.TvdbID)
 	log.Println("CINE-1", err)
-	if err != mgo.ErrNotFound || err != nil { // series doesn't exist so lets create it
+	if err != mgo.ErrNotFound { // series doesn't exist so lets create it
 		seriesObject = Series{}
 		seriesObject.TVDBID = s.TvdbID
 		/* seriesObject.KitsuID, err = GetKitsuIDByTitle(s.Title) // unhandled error
