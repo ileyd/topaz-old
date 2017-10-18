@@ -4,31 +4,11 @@ import (
 	"encoding/json"
 	"errors"
 	"log"
-	"net/url"
-	"os"
-	"strings"
 
 	"github.com/ileyd/sonarr"
-	"github.com/ileyd/topaz/models"
-	sonarrClient "github.com/ileyd/topaz/sonarr"
 )
 
-type SonarrEpisodeInfo struct {
-	Episode     sonarr.Episode
-	EpisodeFile sonarr.EpisodeFile
-}
-
-var seriesModel = new(models.SeriesModel)
-
-func GenerateB2URL(absPath string) string {
-	pathComponents := strings.Split(absPath, string(os.PathSeparator))
-	relPath := strings.Join(pathComponents[2:], string(os.PathSeparator))
-
-	baseURL := "https://f001.backblazeb2.com/file/testing-content/"
-	urlRelPath := strings.Replace(url.QueryEscape(relPath), "%2F", "/", -1)
-
-	return baseURL + urlRelPath
-}
+var seriesModel = new(SeriesModel)
 
 func findEpisodeFromEpisodeFile(episodes []sonarr.Episode, efID int) (seasonNumber, episodeNumber int, err error) {
 	var episode sonarr.Episode
@@ -45,9 +25,9 @@ func findEpisodeFromEpisodeFile(episodes []sonarr.Episode, efID int) (seasonNumb
 	return episode.SeasonNumber, episode.EpisodeNumber, nil
 }
 
-func UpdateSeriesFromSonarr() (err error) {
+func updateSeriesFromSonarr() (err error) {
 	// get all series so that we may loop through them
-	series, err := sonarrClient.GetClient().GetAllSeries()
+	series, err := sonarrClient.GetAllSeries()
 	if err != nil {
 		return err
 	}
@@ -61,13 +41,13 @@ func UpdateSeriesFromSonarr() (err error) {
 	for _, s := range series {
 		// get all episodes so that we may find the corresponding episode information for episodeFiles
 		log.Println("using series ID", s.ID)
-		episodes, err := sonarrClient.GetClient().GetAllEpisodes(s.ID)
+		episodes, err := sonarrClient.GetAllEpisodes(s.ID)
 		if err != nil {
 			log.Println(err)
 			continue
 		}
 		// get all episodeFiles so that we may iterate through them all
-		episodeFiles, err := sonarrClient.GetClient().GetAllEpisodeFiles(s.ID)
+		episodeFiles, err := sonarrClient.GetAllEpisodeFiles(s.ID)
 		if err != nil {
 			log.Println(err)
 			continue
@@ -89,11 +69,17 @@ func UpdateSeriesFromSonarr() (err error) {
 			}
 			dbSeriesID := dbSeries.ID
 
-			var media = models.Media{
+			url, err := GenerateB2URL(ef.Path)
+			if err != nil {
+				log.Println(err)
+				continue
+			}
+
+			var media = Media{
 				SeriesID:      dbSeriesID,
 				SeasonNumber:  seasonNumber,
 				EpisodeNumber: episodeNumber,
-				Release: models.Release{
+				Release: Release{
 					Quality:        ef.Quality.Quality.Name,
 					QualityVersion: ef.Quality.Quality.ID,
 					ReleaseGroup:   "",
@@ -102,7 +88,7 @@ func UpdateSeriesFromSonarr() (err error) {
 					Size:           ef.Size,
 				},
 				Path: ef.Path,
-				URL:  GenerateB2URL(ef.Path),
+				URL:  *url,
 			}
 
 			jsonValue, err := json.Marshal(media)

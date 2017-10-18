@@ -1,4 +1,4 @@
-package models
+package main
 
 // Release describes a "release", a term with specific meaning in the warez scene
 type Release struct {

@@ -1,4 +1,4 @@
-package models
+package main
 
 import (
 	"encoding/json"
@@ -10,6 +10,7 @@ import (
 	"github.com/nemith/tvdb"
 )
 
+// GetTVDBIDByTitle searches for a series in TVDB by its title and returns the ID of the first match
 func GetTVDBIDByTitle(title string) (id int, err error) {
 	client := tvdb.NewClient("1AF5B7DB27302EB5")
 	series, err := client.SearchSeries(title, "en")
@@ -17,6 +18,7 @@ func GetTVDBIDByTitle(title string) (id int, err error) {
 	return id, err
 }
 
+// GetKitsuIDByTitle searches for a series in Kitsu by its title and returns the ID of the first match
 func GetKitsuIDByTitle(title string) (int, error) {
 	page, err := kitsu.GetAnimePage(url.QueryEscape("anime/?filter[text]=" + title))
 	log.Println("GKIBT-1", err, title)

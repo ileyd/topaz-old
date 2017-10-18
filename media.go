@@ -1,7 +1,8 @@
-package models
+package main
 
 import (
-	"github.com/ileyd/topaz/db"
+	"net/url"
+
 	uuid "github.com/satori/go.uuid"
 	"gopkg.in/mgo.v2/bson"
 )
@@ -16,17 +17,18 @@ type Media struct {
 
 	Release Release `json:"release" bson:"release"`
 
-	Path string `json:"path" bson:"path"`
-	URL  string `json:"url" bson:"url"`
+	Path string  `json:"path" bson:"path"`
+	URL  url.URL `json:"url" bson:"url"`
 }
 
 // MediaModel is used to group model functions relating to Media objects
 type MediaModel struct{}
 
+// Add adds a new Media object to an existing Episode object
 func (m *MediaModel) Add(me Media) error {
 	var s Series
 	var sm SeriesModel
-	series := db.GetDB().C(SeriesCollection)
+	series := db.C(SeriesCollection)
 	err := series.Find(bson.M{"_id": me.SeriesID}).One(&s)
 	if err != nil {
 		return err
@@ -38,14 +40,16 @@ func (m *MediaModel) Add(me Media) error {
 	return sm.Update(s)
 }
 
+// Update is an alias for the Add() function
 func (m *MediaModel) Update(me Media) error {
 	return m.Add(me)
 }
 
+// Delete removes a Media object from an existing Episode object
 func (m *MediaModel) Delete(me Media) error {
 	var s Series
 	var sm SeriesModel
-	series := db.GetDB().C(SeriesCollection)
+	series := db.C(SeriesCollection)
 	err := series.Find(bson.M{"_id": me.SeriesID}).One(&s)
 	if err != nil {
 		return err

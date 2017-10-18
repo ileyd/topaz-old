@@ -1,12 +1,11 @@
-package models
+package main
 
 import (
 	"log"
 
 	"gopkg.in/mgo.v2"
 
-	sonarrClient "github.com/ileyd/sonarr"
-	"github.com/ileyd/topaz/db"
+	"github.com/ileyd/sonarr"
 	"gopkg.in/mgo.v2/bson"
 )
 
@@ -48,21 +47,21 @@ type Episode struct {
 // SeriesModel is used to group model functions relating to Series objects
 type SeriesModel struct{}
 
-// Create ...
+// Create inserts a new series into the database
 func (m *SeriesModel) Create(s Series) error {
-	series := db.GetDB().C(SeriesCollection)
+	series := db.C(SeriesCollection)
 	return series.Insert(s)
 }
 
-// Update ...
+// Update updates an existing series in the database based on its object ID
 func (m *SeriesModel) Update(s Series) error {
-	series := db.GetDB().C(SeriesCollection)
+	series := db.C(SeriesCollection)
 	return series.Update(bson.M{"_id": s.ID}, s)
 }
 
-// Delete ...
+// Delete removes an existing series from the database based on specified selectors
 func (m *SeriesModel) Delete(selectorKey string, selectorValue interface{}) error {
-	series := db.GetDB().C(SeriesCollection)
+	series := db.C(SeriesCollection)
 	return series.Remove(bson.M{selectorKey: selectorValue})
 }
 
@@ -73,23 +72,24 @@ func (m *SeriesModel) GetIDFromKitsuID(KID string) (ID bson.ObjectId, err error)
 	return s.ID, err
 }
 
-// GetOne ...
+// GetOne gets a single series from the database based on specified selectors
 func (m *SeriesModel) GetOne(selectorKey string, selectorValue interface{}) (Series, error) {
-	series := db.GetDB().C(SeriesCollection)
+	series := db.C(SeriesCollection)
 	var s Series
 	err := series.Find(bson.M{selectorKey: selectorValue}).One(&s)
 	return s, err
 }
 
-// GetAll ...
+// GetAll gets all series from the database
 func (m *SeriesModel) GetAll() ([]Series, error) {
-	series := db.GetDB().C(SeriesCollection)
+	series := db.C(SeriesCollection)
 	var s []Series
 	err := series.Find(nil).All(&s)
 	return s, err
 }
 
-func (m *SeriesModel) CreateIfNotExists(s sonarrClient.SonarrSeries) (seriesObject Series, err error) {
+// CreateIfNotExists returns a series object from the database if it exists, otherwise creates one and returns that
+func (m *SeriesModel) CreateIfNotExists(s sonarr.SonarrSeries) (seriesObject Series, err error) {
 	// if series object does not exist, create it
 	seriesObject, err = m.GetOne("tvdbID", s.TvdbID)
 	log.Println("CINE-1", err)
@@ -119,6 +119,7 @@ func (m *SeriesModel) CreateIfNotExists(s sonarrClient.SonarrSeries) (seriesObje
 // SeasonModel is used to group model functions relating to Season objects
 type SeasonModel struct{}
 
+// Add adds a new season to an existing series object
 func (m *SeasonModel) Add(s Season) error {
 	var srm SeriesModel
 	sr, err := srm.GetOne("_id", s.SeriesID)
@@ -129,6 +130,7 @@ func (m *SeasonModel) Add(s Season) error {
 	return srm.Update(sr)
 }
 
+// CreateIfNotExists checks if a season object exists in a given series, otherwise creates one, and returns the result
 func (m *SeasonModel) CreateIfNotExists(series Series, seasonNumber int) (err error) {
 	// if season object doesn't exist create it
 	if _, ok := series.Seasons[string(seasonNumber)]; !ok {
