@@ -16,7 +16,7 @@ func GenerateB2URL(absPath string) (*url.URL, error) {
 		log.Println("GenerateB2URL encountered a path too short to handle", pathComponents)
 		return nil, errors.New("encountered a path too short to handle")
 	}
-	// see previous note
+
 	relPath := strings.Join(pathComponents[strippedComponents:], "/")
 
 	// very bad way of unescaping the path separators
