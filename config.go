@@ -1,8 +1,10 @@
 package main
 
 import (
+	"log"
+
 	"github.com/jinzhu/configor"
-	mgo "gopkg.in/mgo.v2"
+	"gopkg.in/mgo.v2"
 )
 
 // topazConfig defines the configuration required for the topaz application
@@ -16,9 +18,10 @@ type topazConfig struct {
 type dbConfig struct {
 	Addrs          []string `required:"true"`
 	ReplicaSetName string
-	DefaultDB      string `default:"topaz"`
+	AuthDB         string `default:"admin"`
 	Username       string `required:"true"`
 	Password       string `required:"true"`
+	AppDB          string `required:"true" default:"topaz"`
 }
 
 // sonarrConfig defines the configuration required to connect to Sonarr
@@ -37,15 +40,19 @@ var config topazConfig
 
 // loadConfig loads the application configuration from disk
 func loadConfig() error {
-	return configor.Load(&config, "config.json")
+	err := configor.Load(&config, "config.json")
+	if err == nil {
+		log.Println("successfully loaded config.json")
+	}
+	return err
 }
 
 // DialInfo returns an mgo.DialInfo object based on the parameters specified in the application configuration
-func (c dbConfig) DialInfo() mgo.DialInfo {
-	return mgo.DialInfo{
+func (c dbConfig) DialInfo() *mgo.DialInfo {
+	return &mgo.DialInfo{
 		Addrs:          c.Addrs,
 		ReplicaSetName: c.ReplicaSetName,
-		Database:       c.DefaultDB,
+		Database:       c.AuthDB,
 		Username:       c.Username,
 		Password:       c.Password,
 	}

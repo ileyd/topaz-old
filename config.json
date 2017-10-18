@@ -10,9 +10,10 @@
       "cluster0-shard-00-02-qqlpb.mongodb.net:27017"
     ],
     "ReplicaSetName": "Cluster0-shard-0",
-    "DefaultDB": "stream",
+    "AuthDB": "admin",
     "Username": "admin",
-    "Password": "VwJnf1lQmASMnVET"
+    "Password": "VwJnf1lQmASMnVET",
+    "AppDB": "topaz"
   },
   "Sonarr": {
     "Addr": "http://localhost:8989",
