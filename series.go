@@ -1,7 +1,9 @@
 package main
 
 import (
+	"errors"
 	"log"
+	"strconv"
 
 	"gopkg.in/mgo.v2"
 
@@ -93,7 +95,8 @@ func (m *SeriesModel) CreateIfNotExists(s sonarr.SonarrSeries) (seriesObject Ser
 	// if series object does not exist, create it
 	seriesObject, err = m.GetOne("tvdbID", s.TvdbID)
 	log.Println("CINE-1", err)
-	if err != mgo.ErrNotFound { // series doesn't exist so lets create it
+	if err == mgo.ErrNotFound || err == errors.New("not found") { // series doesn't exist so lets create it
+		log.Println("CINE-2!")
 		seriesObject = Series{}
 		seriesObject.TVDBID = s.TvdbID
 		/* seriesObject.KitsuID, err = GetKitsuIDByTitle(s.Title) // unhandled error
@@ -113,7 +116,7 @@ func (m *SeriesModel) CreateIfNotExists(s sonarr.SonarrSeries) (seriesObject Ser
 			return Series{}, err
 		}
 	}
-	return seriesObject, nil
+	return seriesObject, err
 }
 
 // SeasonModel is used to group model functions relating to Season objects
@@ -126,14 +129,14 @@ func (m *SeasonModel) Add(s Season) error {
 	if err != nil {
 		return err
 	}
-	sr.Seasons[string(s.SeasonNumber)] = s
+	sr.Seasons[strconv.Itoa(s.SeasonNumber)] = s
 	return srm.Update(sr)
 }
 
 // CreateIfNotExists checks if a season object exists in a given series, otherwise creates one, and returns the result
 func (m *SeasonModel) CreateIfNotExists(series Series, seasonNumber int) (err error) {
 	// if season object doesn't exist create it
-	if _, ok := series.Seasons[string(seasonNumber)]; !ok {
+	if _, ok := series.Seasons[strconv.Itoa(seasonNumber)]; !ok {
 		var season Season
 		season.SeasonNumber = seasonNumber
 		season.SeriesID = series.ID
@@ -142,7 +145,7 @@ func (m *SeasonModel) CreateIfNotExists(series Series, seasonNumber int) (err er
 		if series.Seasons == nil {
 			series.Seasons = make(map[string]Season)
 		}
-		series.Seasons[string(seasonNumber)] = season
+		series.Seasons[strconv.Itoa(seasonNumber)] = season
 		var srm SeriesModel
 		return srm.Update(series)
 	}
@@ -151,3 +154,29 @@ func (m *SeasonModel) CreateIfNotExists(series Series, seasonNumber int) (err er
 
 // EpisodeModel is used to group model functions relating to Episode objects
 type EpisodeModel struct{}
+
+// CreateIfNotExists checks if an episode object exists in a given series and season, otherwise creates ones, and returns the result
+func (m *EpisodeModel) CreateIfNotExists(series Series, seasonNumber, episodeNumber int) (err error) {
+	// if episode object doesn't exist create it
+	if _, ok := series.Seasons[strconv.Itoa(seasonNumber)].Episodes[strconv.Itoa(episodeNumber)]; !ok {
+		var episode Episode
+		episode.EpisodeNumber = episodeNumber
+		episode.SeasonNumber = seasonNumber
+		episode.SeriesID = series.ID
+		// if episodes map doesn't exist, make it
+		if series.Seasons[strconv.Itoa(seasonNumber)].Episodes == nil {
+			season := series.Seasons[strconv.Itoa(seasonNumber)]
+			season.Episodes = make(map[string]Episode)
+			series.Seasons[strconv.Itoa(seasonNumber)] = season
+			err = seriesModel.Update(series)
+			if err != nil {
+				return err
+			}
+		}
+		season := series.Seasons[strconv.Itoa(seasonNumber)]
+		season.Episodes[strconv.Itoa(episodeNumber)] = episode
+		series.Seasons[strconv.Itoa(seasonNumber)] = season
+		seriesModel.Update(series)
+	}
+	return nil
+}
