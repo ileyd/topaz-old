@@ -2,6 +2,7 @@ package main
 
 import (
 	"net/url"
+	"strconv"
 
 	uuid "github.com/satori/go.uuid"
 	"gopkg.in/mgo.v2/bson"
@@ -10,7 +11,7 @@ import (
 // Media describes a media file we have in storage
 type Media struct {
 	ID            bson.ObjectId `json:"_id,omitempty" bson:"_id,omitempty"`
-	UUID          string        `json:"uuid" bson:"uuid"`
+	UUID          uuid.UUID     `json:"uuid" bson:"uuid"`
 	SeriesID      bson.ObjectId `json:"seriesID" bson:"seriesID"`
 	SeasonNumber  int           `json:"seasonNumber" bson:"seasonNumber"`
 	EpisodeNumber int           `json:"episodeNumber" bson:"episodeNumber"`
@@ -33,9 +34,9 @@ func (m *MediaModel) Add(me Media) error {
 	if err != nil {
 		return err
 	}
-	s.Seasons[string(me.SeasonNumber)].Episodes[string(me.EpisodeNumber)].Media[me.UUID] = me
-	if me.UUID == "" {
-		me.UUID = uuid.NewV4().String()
+	s.Seasons[strconv.Itoa(me.SeasonNumber)].Episodes[strconv.Itoa(me.EpisodeNumber)].Media[me.UUID.String()] = me
+	if me.UUID.String() == "" {
+		me.UUID = uuid.NewV4()
 	}
 	return sm.Update(s)
 }
@@ -54,6 +55,6 @@ func (m *MediaModel) Delete(me Media) error {
 	if err != nil {
 		return err
 	}
-	delete(s.Seasons[string(me.SeasonNumber)].Episodes[string(me.EpisodeNumber)].Media, me.UUID)
+	delete(s.Seasons[strconv.Itoa(me.SeasonNumber)].Episodes[strconv.Itoa(me.EpisodeNumber)].Media, me.UUID.String())
 	return sm.Update(s)
 }
