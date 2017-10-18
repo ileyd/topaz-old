@@ -1,5 +1,4 @@
-== What is this even? 
+# What is this even?
 TODO
-== License
-TBD
-All rights reserved Copyright 2017
+# LICENSE
+To be decided.  All rights reserved Copyright 2017
